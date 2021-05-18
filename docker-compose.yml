@@ -12,7 +12,7 @@ services:
       - ./master/conf/mysql_master.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
       - ./master/datadir:/var/lib/mysql
     networks:
-      - mysql-net
+      - mysql_net
 
   mysql_slave:
     image: mysql:8.0.25
@@ -28,9 +28,9 @@ services:
       - ./slave/conf/mysql_slave.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
       - ./slave/datadir:/var/lib/mysql
     networks:
-      - mysql-net
+      - mysql_net
 
 networks:
-  mysql-net:
+  mysql_net:
     driver: bridge
 
