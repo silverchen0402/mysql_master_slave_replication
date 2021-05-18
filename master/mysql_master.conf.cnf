@@ -1,0 +1,8 @@
+slow_query_log          = 1
+slow_query_log_file     = /var/log/mysql/mysql-slow.log
+long_query_time = 2
+log-queries-not-using-indexes
+server-id               = 1
+log_bin                 = /var/log/mysql/mysql-bin.log
+binlog_expire_logs_seconds      = 2592000
+max_binlog_size   = 100M
