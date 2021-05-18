@@ -9,8 +9,9 @@ services:
     ports:
       - 3307:3306
     volumes:
-      - ./master/conf/mysql_master.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - ./master/mysql_master.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
       - ./master/datadir:/var/lib/mysql
+      - ./master/log:/var/log/mysql
     networks:
       - mysql_net
 
@@ -25,8 +26,9 @@ services:
     depends_on:
       - mysql_master
     volumes:
-      - ./slave/conf/mysql_slave.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - ./slave/mysql_slave.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
       - ./slave/datadir:/var/lib/mysql
+      - ./slave/log:/var/log/mysql
     networks:
       - mysql_net
 
