@@ -55,13 +55,4 @@ SLAVE_STATUS=`docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e
 fn0=`/bin/mktemp`
 echo $SLAVE_STATUS $fn0
 echo $SLAVE_STATUS>$fn0
-line=`grep -P "Slave_IO_Running: " $fn0`
-IFS=$' ' read -r name value1 <<<"$line"
-echo $name "=" $value1
-line=`grep -P "Slave_SQL_Running: " $fn0`
-IFS=$' ' read -r name value2 <<<"$line"
-echo $name "=" $value2
-rm $fn0
-
-
 
