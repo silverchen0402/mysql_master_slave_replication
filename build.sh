@@ -12,7 +12,7 @@ rm -rf slave/log/*
 chmod 777 master/log
 chmod 777 slave/log
 
-docker-compose up
+docker-compose up -d
 echo ">>> bring up master and slave done"
 repl_user='CREATE USER "repl"@"%" IDENTIFIED BY "dev1234";GRANT REPLICATION SLAVE ON *.* TO "repl"@"%";FLUSH PRIVILEGES;'
 #echo $repl_user
