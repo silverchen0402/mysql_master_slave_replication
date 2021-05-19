@@ -36,7 +36,7 @@ CURRENT_POS=`echo $MASTER_STATUS | awk '{print $7}'`
 
 echo ">>> master file and position: ${CURRENT_LOG}:${CURRENT_POS}"
 
-master_ip=`docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_master`
+master_IP=`docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_master`
 echo ">>> master IP: ${master_IP}"
 
 until docker-compose exec mysql_slave sh -c 'mysql -u root -pdev1234 -P 3308 -e ";"'
@@ -45,8 +45,8 @@ do
     sleep 5
 done
 
-slave_stmt='CHANGE MASTER TO MASTER_HOST="${master_IP}",MASTER_USER="repl",MASTER_PASSWORD="dev1234",MASTER_LOG_FILE="${CURRENT_LOG}",MASTER_LOG_POS=${CURRENT_POS}; START SLAVE;"
-docker exec mysql_master sh -c "mysql -u root -pdev1234  -P 3306 -e '$slave_stmt'"
+slave_stmt='CHANGE MASTER TO MASTER_HOST="${master_IP}",MASTER_USER="repl",MASTER_PASSWORD="dev1234",MASTER_LOG_FILE="${CURRENT_LOG}",MASTER_LOG_POS=${CURRENT_POS}; START SLAVE;'
+docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e '$slave_stmt'"
 
 docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G'"
 
