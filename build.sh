@@ -61,7 +61,7 @@ echo $name "=" $value1
 line=`grep -P "Slave_SQL_Running: " $fn0`
 IFS=$' ' read -r name value2 <<<"$line"
 echo $name "=" $value2
-rm $fn0
+#rm $fn0
 if [[ "$value1" == "Yes" || "$value2" == "Yes" ]];
 then
   echo "Replication set, try some sql"
