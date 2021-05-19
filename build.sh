@@ -50,11 +50,12 @@ echo "$slave_stmt"
 docker exec -it mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"$slave_stmt\""
 echo ">>> wait replication to settle"
 sleep 5
-SLAVE_STATUS=`docker exec -it mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G;'"`
+
 
 fn0=`/bin/mktemp`
-echo $SLAVE_STATUS $fn0
-echo $SLAVE_STATUS>$fn0
+echo $fn0
+echo `docker exec -it mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G;'"`>$fn0
+cat $fn0
 line=`grep -P "Slave_IO_Running: " $fn0`
 IFS=$' ' read -r name value1 <<<"$line"
 echo $name "=" $value1
