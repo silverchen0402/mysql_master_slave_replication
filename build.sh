@@ -45,7 +45,7 @@ do
     sleep 5
 done
 
-slave_stmt='CHANGE MASTER TO MASTER_HOST="$master_IP",MASTER_USER="repl",MASTER_PASSWORD="dev1234",MASTER_LOG_FILE="$CURRENT_LOG",MASTER_LOG_POS=$CURRENT_POS; START SLAVE;'
+slave_stmt="CHANGE MASTER TO MASTER_HOST='$master_IP',MASTER_USER='repl',MASTER_PASSWORD='dev1234',MASTER_LOG_FILE='$CURRENT_LOG',MASTER_LOG_POS=$CURRENT_POS; START SLAVE;"
 echo $slave_stmt
 docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e '$slave_stmt'"
 
