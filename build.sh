@@ -16,10 +16,10 @@ docker-compose up
 echo ">>> bring up master and slave done"
 repl_user='CREATE USER "repl"@"%" IDENTIFIED BY "dev1234";GRANT REPLICATION SLAVE ON *.* TO "repl"@"%";FLUSH PRIVILEGES;'
 #echo $repl_user
-docker exec mysql_master sh -c "mysql -u root -pdev1234 -e '$repl_user'"
+docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e '$repl_user'"
 echo ">>> create repl user done"
 
-MASTER_STATUS=`docker exec mysql_master sh -c 'mysql -u root -pdev1234 -e "SHOW MASTER STATUS"'`
+MASTER_STATUS=`docker exec mysql_master sh -c 'mysql -u root -pdev1234 -P 3306 -e "SHOW MASTER STATUS"'`
 echo ">>> master status: $MASTER_STATUS"
 
 CURRENT_LOG=`echo $MASTER_STATUS | awk '{print $6}'`
@@ -31,8 +31,8 @@ master_ip=`docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{
 echo ">>> master IP: ${master_IP}"
 
 slave_stmt="CHANGE MASTER TO MASTER_HOST='${master_IP}',MASTER_USER='repl',MASTER_PASSWORD='dev1234',MASTER_LOG_FILE='${CURRENT_LOG}',MASTER_LOG_POS=${CURRENT_POS}; START SLAVE;"
-docker exec mysql_master sh -c "mysql -u root -pdev1234 -e '$slave_stmt'"
+docker exec mysql_master sh -c "mysql -u root -pdev1234  -P 3306 -e '$slave_stmt'"
 
-docker exec mysql_slave sh -c "mysql -u root -pdev1234 -e 'SHOW SLAVE STATUS \G'"
+docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G'"
 
 
