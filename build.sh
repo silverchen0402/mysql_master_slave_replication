@@ -71,7 +71,7 @@ then
   col1 INT NOT NULL,\
   table1col INT NOT NULL,\
   PRIMARY KEY (col1, table1col));\""
-  docker exec mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"describe testdb.table1\""
+  docker exec -t mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"describe testdb.table1\""
 else
   echo "Replication not set"
 fi
