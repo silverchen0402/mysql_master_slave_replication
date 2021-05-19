@@ -49,9 +49,11 @@ slave_stmt="CHANGE REPLICATION SOURCE TO SOURCE_HOST='${master_IP}',SOURCE_USER=
 echo "$slave_stmt"
 docker exec mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"$slave_stmt\""
 echo ">>> wait replication to settle"
+sleep 5
 SLAVE_STATUS=`docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G'"`
 
 fn=`/bin/mktemp`
+echo $SLAVE_STATUS $fn
 echo $SLAVE_STATUS>$fn
 line=`grep -P "Slave_IO_Running: " $fn`
 IFS=$' ' read -r name value1 <<<"$line"
