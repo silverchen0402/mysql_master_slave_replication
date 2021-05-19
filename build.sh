@@ -19,6 +19,12 @@ repl_user='CREATE USER "repl"@"%" IDENTIFIED BY "dev1234";GRANT REPLICATION SLAV
 docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e '$repl_user'"
 echo ">>> create repl user done"
 
+until docker exec mysql_master sh -c 'mysql -u root -pdev1234 -P 3307 -e ";"'
+do
+    echo "Waiting for mysql_master database connection..."
+    sleep 5
+done
+
 MASTER_STATUS=`docker exec mysql_master sh -c 'mysql -u root -pdev1234 -P 3306 -e "SHOW MASTER STATUS"'`
 echo ">>> master status: $MASTER_STATUS"
 
@@ -29,6 +35,12 @@ echo ">>> master file and position: ${CURRENT_LOG}:${CURRENT_POS}"
 
 master_ip=`docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_master`
 echo ">>> master IP: ${master_IP}"
+
+until docker-compose exec mysql_slave sh -c 'mysql -u root -pdev1234 -P 3308 -e ";"'
+do
+    echo "Waiting for mysql_slave database connection..."
+    sleep 5
+done
 
 slave_stmt="CHANGE MASTER TO MASTER_HOST='${master_IP}',MASTER_USER='repl',MASTER_PASSWORD='dev1234',MASTER_LOG_FILE='${CURRENT_LOG}',MASTER_LOG_POS=${CURRENT_POS}; START SLAVE;"
 docker exec mysql_master sh -c "mysql -u root -pdev1234  -P 3306 -e '$slave_stmt'"
