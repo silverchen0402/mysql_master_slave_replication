@@ -21,7 +21,7 @@ do
 done
 
 echo ">>> bring up master and slave done"
-repl_user='CREATE USER "repl"@"%" IDENTIFIED BY "dev1234";GRANT REPLICATION SLAVE ON *.* TO "repl"@"%";FLUSH PRIVILEGES;'
+repl_user='CREATE USER "repl"@"%" IDENTIFIED WITH "mysql_native_password" BY "dev1234";GRANT REPLICATION SLAVE ON *.* TO "repl"@"%";FLUSH PRIVILEGES;'
 #echo $repl_user
 docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e '$repl_user'"
 echo ">>> create repl user done"
