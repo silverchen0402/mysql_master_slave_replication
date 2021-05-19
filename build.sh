@@ -54,7 +54,7 @@ sleep 5
 
 fn0=`/bin/mktemp`
 echo $fn0
-docker exec -t mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G;'"</dev/null>$fn0
+docker exec -t mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G;'"</dev/null|tr -d '\r'>$fn0
 cat $fn0
 line=`grep -P "Slave_IO_Running: " $fn0`
 IFS=$' ' read -r name value1 <<<"$line"
