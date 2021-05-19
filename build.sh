@@ -14,7 +14,7 @@ chmod 777 slave/log
 
 docker-compose up -d
 
-until docker exec mysql_master sh -c 'mysql -u root -pdev1234 -P 3307 -e ";"'
+until docker exec -it mysql_master sh -c 'mysql -u root -pdev1234 -P 3307 -e ";"'
 do
     echo "Waiting for mysql_master database connection..."
     sleep 5
@@ -23,12 +23,12 @@ done
 echo ">>> bring up master and slave done"
 repl_user='CREATE USER "repl"@"%" IDENTIFIED WITH "mysql_native_password" BY "dev1234";GRANT REPLICATION SLAVE ON *.* TO "repl"@"%";FLUSH PRIVILEGES;'
 #echo $repl_user
-docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e '$repl_user'"
+docker exec -it mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e '$repl_user'"
 echo ">>> create repl user done"
 
 
 
-MASTER_STATUS=`docker exec mysql_master sh -c 'mysql -u root -pdev1234 -P 3306 -e "SHOW MASTER STATUS"'`
+MASTER_STATUS=`docker exec -it mysql_master sh -c 'mysql -u root -pdev1234 -P 3306 -e "SHOW MASTER STATUS"'`
 echo ">>> master status: $MASTER_STATUS"
 
 CURRENT_LOG=`echo $MASTER_STATUS | awk '{print $6}'`
@@ -39,7 +39,7 @@ echo ">>> master file and position: ${CURRENT_LOG}:${CURRENT_POS}"
 master_IP=`docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_master`
 echo ">>> master IP: ${master_IP}"
 
-until docker-compose exec mysql_slave sh -c 'mysql -u root -pdev1234 -P 3308 -e ";"'
+until docker-compose exec -it mysql_slave sh -c 'mysql -u root -pdev1234 -P 3308 -e ";"'
 do
     echo "Waiting for mysql_slave database connection..."
     sleep 5
@@ -47,10 +47,10 @@ done
 
 slave_stmt="CHANGE REPLICATION SOURCE TO SOURCE_HOST='${master_IP}',SOURCE_USER='repl',SOURCE_PASSWORD='dev1234',SOURCE_LOG_FILE='${CURRENT_LOG}',SOURCE_LOG_POS=${CURRENT_POS}; START SLAVE;"
 echo "$slave_stmt"
-docker exec mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"$slave_stmt\""
+docker exec -it mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"$slave_stmt\""
 echo ">>> wait replication to settle"
 sleep 5
-SLAVE_STATUS=`docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS;'"`
+SLAVE_STATUS=`docker exec -it mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G;'"`
 
 fn0=`/bin/mktemp`
 echo $SLAVE_STATUS $fn0
@@ -65,12 +65,12 @@ echo $name "=" $value2
 if [[ "$value1" == "Yes" || "$value2" == "Yes" ]];
 then
   echo "Replication set, try some sql"
-  docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e \"create database testdb\""
-  docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e \"CREATE TABLE 'testdb'.'table1' (\
+  docker exec -it mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e \"create database testdb\""
+  docker exec -it mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e \"CREATE TABLE 'testdb'.'table1' (\
   'col1' INT NOT NULL,\
   'table1col' INT NOT NULL,\
   PRIMARY KEY ('col1', 'table1col'));"
-  docker exec mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"describe testdb.table1\""
+  docker exec -it mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"describe testdb.table1\""
 else
   echo "Replication not set"
 fi
