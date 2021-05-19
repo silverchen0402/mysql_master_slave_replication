@@ -62,18 +62,6 @@ line=`grep -P "Slave_SQL_Running: " $fn0`
 IFS=$' ' read -r name value2 <<<"$line"
 echo $name "=" $value2
 rm $fn0
-if [[ "$value1" == "Yes" || "$value2" == "Yes" ]];
-then
-  echo "Replication set, try some sql"
-  docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e \"create database testdb\""
-  docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e \"CREATE TABLE 'testdb'.'table1' (\
-  'col1' INT NOT NULL,\
-  'table1col' INT NOT NULL,\
-  PRIMARY KEY ('col1', 'table1col'));"
-  docker exec mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"describe testdb.table1\""
-else
-  echo "Replication not set"
-fi
-echo "all done"
+
 
 
