@@ -39,7 +39,7 @@ echo ">>> master file and position: ${CURRENT_LOG}:${CURRENT_POS}"
 master_IP=`docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_master`
 echo ">>> master IP: ${master_IP}"
 
-until docker-compose exec -it mysql_slave sh -c 'mysql -u root -pdev1234 -P 3308 -e ";"'
+until docker-compose exec mysql_slave sh -c 'mysql -u root -pdev1234 -P 3308 -e ";"'
 do
     echo "Waiting for mysql_slave database connection..."
     sleep 5
