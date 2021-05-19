@@ -50,7 +50,7 @@ echo "$slave_stmt"
 docker exec mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"$slave_stmt\""
 echo ">>> wait replication to settle"
 sleep 5
-SLAVE_STATUS=`docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G'"`
+SLAVE_STATUS=`docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS;'"`
 
 fn0=`/bin/mktemp`
 echo $SLAVE_STATUS $fn0
