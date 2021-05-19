@@ -1,4 +1,4 @@
-#!/bin/bash
+de#!/bin/bash
 # 1. bring up master and slave
 # 2. get master binlog name and position
 # 3. setup slave
@@ -54,7 +54,7 @@ sleep 5
 
 fn0=`/bin/mktemp`
 echo $fn0
-echo `docker exec --tty=false mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G;'"`>$fn0
+echo `docker exec -t mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G;'"</dev/null`>$fn0
 cat $fn0
 line=`grep -P "Slave_IO_Running: " $fn0`
 IFS=$' ' read -r name value1 <<<"$line"
@@ -71,7 +71,7 @@ then
   'col1' INT NOT NULL,\
   'table1col' INT NOT NULL,\
   PRIMARY KEY ('col1', 'table1col'));"
-  docker exec --tty=false mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"describe testdb.table1\""
+  docker exec mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"describe testdb.table1\""
 else
   echo "Replication not set"
 fi
