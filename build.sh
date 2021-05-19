@@ -48,9 +48,30 @@ done
 slave_stmt="CHANGE REPLICATION SOURCE TO SOURCE_HOST='${master_IP}',SOURCE_USER='repl',SOURCE_PASSWORD='dev1234',SOURCE_LOG_FILE='${CURRENT_LOG}',SOURCE_LOG_POS=${CURRENT_POS}; START SLAVE;"
 echo "$slave_stmt"
 docker exec mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"$slave_stmt\""
+echo ">>> wait replication to settle"
+SLAVE_STATUS=`docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G'"`
 
-docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G'"
-
+fn=`/bin/mktemp`
+echo $SLAVE_STATUS>$fn
+line=`grep -P "Slave_IO_Running: " $fn`
+IFS=$' ' read -r name value1 <<<"$line"
+echo $name "=" $value1
+line=`grep -P "Slave_SQL_Running: " $fn`
+IFS=$' ' read -r name value2 <<<"$line"
+echo $name "=" $value2
+rm $fn
+if [[ "$value1" == "Yes" || "$value2" == "Yes" ]];
+then
+  echo "Replication set, try some sql"
+  docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e \"create database testdb\""
+  docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e \"CREATE TABLE `testdb`.`table1` (\
+  `col1` INT NOT NULL,\
+  `table1col` INT NOT NULL,\
+  PRIMARY KEY (`col1`, `table1col`));""
+  docker exec mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"describe testdb.table1\""
+else
+  echo "Replication not set"
+fi
 echo "all done"
 
 
