@@ -47,7 +47,7 @@ done
 
 slave_stmt="CHANGE REPLICATION SOURCE TO SOURCE_HOST='${master_IP}',SOURCE_USER='repl',SOURCE_PASSWORD='dev1234',SOURCE_LOG_FILE='${CURRENT_LOG}',SOURCE_LOG_POS=${CURRENT_POS}; START SLAVE;"
 echo "$slave_stmt"
-docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e \"$slave_stmt\""
+docker exec mysql_slave sh -c "mysql -u root -pdev1234 -P 3306 -e \"$slave_stmt\""
 
 docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G'"
 
