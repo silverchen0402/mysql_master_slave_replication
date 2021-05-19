@@ -13,17 +13,20 @@ chmod 777 master/log
 chmod 777 slave/log
 
 docker-compose up -d
-echo ">>> bring up master and slave done"
-repl_user='CREATE USER "repl"@"%" IDENTIFIED BY "dev1234";GRANT REPLICATION SLAVE ON *.* TO "repl"@"%";FLUSH PRIVILEGES;'
-#echo $repl_user
-docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e '$repl_user'"
-echo ">>> create repl user done"
 
 until docker exec mysql_master sh -c 'mysql -u root -pdev1234 -P 3307 -e ";"'
 do
     echo "Waiting for mysql_master database connection..."
     sleep 5
 done
+
+echo ">>> bring up master and slave done"
+repl_user='CREATE USER "repl"@"%" IDENTIFIED BY "dev1234";GRANT REPLICATION SLAVE ON *.* TO "repl"@"%";FLUSH PRIVILEGES;'
+#echo $repl_user
+docker exec mysql_master sh -c "mysql -u root -pdev1234 -P 3306 -e '$repl_user'"
+echo ">>> create repl user done"
+
+
 
 MASTER_STATUS=`docker exec mysql_master sh -c 'mysql -u root -pdev1234 -P 3306 -e "SHOW MASTER STATUS"'`
 echo ">>> master status: $MASTER_STATUS"
@@ -42,9 +45,11 @@ do
     sleep 5
 done
 
-slave_stmt="CHANGE MASTER TO MASTER_HOST='${master_IP}',MASTER_USER='repl',MASTER_PASSWORD='dev1234',MASTER_LOG_FILE='${CURRENT_LOG}',MASTER_LOG_POS=${CURRENT_POS}; START SLAVE;"
+slave_stmt='CHANGE MASTER TO MASTER_HOST="${master_IP}",MASTER_USER="repl",MASTER_PASSWORD="dev1234",MASTER_LOG_FILE="${CURRENT_LOG}",MASTER_LOG_POS=${CURRENT_POS}; START SLAVE;"
 docker exec mysql_master sh -c "mysql -u root -pdev1234  -P 3306 -e '$slave_stmt'"
 
 docker exec mysql_slave sh -c "mysql -u root -pdev1234  -P 3306 -e 'SHOW SLAVE STATUS \G'"
+
+echo "all done"
 
 
